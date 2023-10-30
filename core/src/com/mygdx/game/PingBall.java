@@ -46,9 +46,24 @@ public class PingBall extends GameObject implements Drawable {
     }
 
     public boolean checkCollision(GameObject other) {
-        // Collision detection logic goes here
-        // This method should return true if a collision is detected
-        return false;
+        // Get the ball's bounding box
+        int ballLeft = getX();
+        int ballRight = getX() + getWidth();
+        int ballTop = getY() + getHeight();
+        int ballBottom = getY();
+
+        // Get the other object's bounding box
+        int otherLeft = other.getX();
+        int otherRight = other.getX() + other.getWidth();
+        int otherTop = other.getY() + other.getHeight();
+        int otherBottom = other.getY();
+
+        // Check if the bounding boxes overlap
+        if (ballRight < otherLeft || ballLeft > otherRight) return false; // No overlap on the x-axis
+        if (ballTop < otherBottom || ballBottom > otherTop) return false; // No overlap on the y-axis
+
+        // If we get here, there is an overlap on both axes, so there is a collision
+        return true;
     }
 
     public boolean isStationary() {
