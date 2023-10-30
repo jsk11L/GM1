@@ -22,6 +22,9 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private int vidas;
     private int puntaje;
     private int nivel;
+    private boolean gameOver;
+    private float gameOverTimer;
+    private float fadeValue;
 
     @Override
     public void create() {
@@ -39,6 +42,9 @@ public class BlockBreakerGame extends ApplicationAdapter {
         ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 20, 5, 7, true);
         pad = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
         crearBloques(2 + nivel);
+        gameOver = false;
+        gameOverTimer = 0;
+        fadeValue = 0;
     }
 
     private void crearBloques(int filas) {
@@ -117,6 +123,22 @@ public class BlockBreakerGame extends ApplicationAdapter {
         shape.end();
 
         dibujaTextos();
+
+        if (vidas <= 0) {
+            gameOver = true;
+        }
+
+        if (gameOver) {
+            if (fadeValue < 1) {
+                fadeValue += Gdx.graphics.getDeltaTime() / 3; // 3 seconds fade in
+            } else {
+                fadeValue = 1;
+            }
+            drawGameOverScreen();
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                resetGame();
+            }
+        }
     }
 
     private void handleInput() {
@@ -133,5 +155,38 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch.dispose();
         font.dispose();
         shape.dispose();
+    }
+
+    private void drawGameOverScreen() {
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        shape.setColor(1, 0, 0, fadeValue); // Red with fade
+        shape.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shape.end();
+
+        batch.begin();
+        font.setColor(0, 0, 0, fadeValue); // Black with fade
+        font.draw(batch, "GAME OVER", Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
+        if (fadeValue == 1) {
+            gameOverTimer += Gdx.graphics.getDeltaTime();
+            if (gameOverTimer > 2) { // Wait for 2 seconds
+                font.getData().setScale(1.5f); // Smaller font size
+                font.setColor(1, 1, 1, 1); // White
+                font.draw(batch, "PRESS TO CONTINUE", Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 4f);
+                font.getData().setScale(3, 2); // Reset to original scale
+            }
+        }
+        batch.end();
+    }
+
+    private void resetGame() {
+        // Reset all game variables and states
+        vidas = 3;
+        puntaje = 0;
+        nivel = 1;
+        gameOver = false;
+        fadeValue = 0;
+        gameOverTimer = 0;
+        crearBloques(2 + nivel);
+        ball.setEstaQuieto(true);
     }
 }
