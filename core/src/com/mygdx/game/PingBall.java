@@ -24,20 +24,39 @@ public class PingBall extends GameObject implements Drawable {
         shape.setColor(color);
         shape.circle(getX(), getY(), getWidth() / 2);
     }
-    
-    public void update() {
-        if (!estaQuieto) {
-            setX(getX() + xSpeed);
-            setY(getY() + ySpeed);
-            // Collision with the walls
-            if (getX() < 0 || getX() > Gdx.graphics.getWidth()) {
-                xSpeed = -xSpeed;
-            }
-            if (getY() > Gdx.graphics.getHeight()) {
-                ySpeed = -ySpeed;
+
+    public void update(Paddle paddle) {
+        // Move the ball by its current speed
+        setX(getX() + xSpeed);
+        setY(getY() + ySpeed);
+
+        // Collision with the left and right walls
+        if (getX() < 0 || getX() + getWidth() > Gdx.graphics.getWidth()) {
+            xSpeed = -xSpeed;
+        }
+
+        // Collision with the top wall
+        if (getY() + getHeight() > Gdx.graphics.getHeight()) {
+            ySpeed = -ySpeed;
+        }
+
+        // Collision with the paddle
+        // Collision with the paddle
+        if (checkCollision(paddle)) {
+            // Check if the ball's center is above the paddle's center
+            if (getY() + getHeight() / 2 > paddle.getY() + paddle.getHeight() / 2) {
+                // The ball's center is above the paddle's center, make sure it bounces upwards
+                ySpeed = Math.abs(ySpeed);
+            } else {
+                // Otherwise, make sure it bounces downwards
+                ySpeed = -Math.abs(ySpeed);
             }
         }
+
+
+        // ... Add logic for the bottom of the screen if needed
     }
+
 
     public void reset(int newX, int newY) {
         setX(newX);
@@ -63,8 +82,24 @@ public class PingBall extends GameObject implements Drawable {
         if (ballTop < otherBottom || ballBottom > otherTop) return false; // No overlap on the y-axis
 
         // If we get here, there is an overlap on both axes, so there is a collision
+        // Determine the side of the collision
+        float ballCenterX = getX() + getWidth() / 2;
+        float ballCenterY = getY() + getHeight() / 2;
+        float otherCenterX = other.getX() + other.getWidth() / 2;
+        float otherCenterY = other.getY() + other.getHeight() / 2;
+
+        float deltaX = ballCenterX - otherCenterX;
+        float deltaY = ballCenterY - otherCenterY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) { // The collision is more horizontal
+            xSpeed = -xSpeed;
+        } else { // The collision is more vertical
+            ySpeed = -ySpeed;
+        }
+
         return true;
     }
+
 
     public boolean isStationary() {
         return estaQuieto;

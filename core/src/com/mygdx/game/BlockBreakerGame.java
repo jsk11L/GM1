@@ -73,7 +73,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
             ball.setPosition(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11);
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) ball.setStationary(false);
         } else {
-            ball.update();
+            ball.update(paddle);
         }
 
         // Check if the ball went below the bottom edge
