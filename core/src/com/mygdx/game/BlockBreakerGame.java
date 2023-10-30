@@ -45,7 +45,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         blocks.clear();
         int blockWidth = 70;
         int blockHeight = 26;
-        int y = Gdx.graphics.getHeight() - 30; // Start a bit below the top of the screen
+        int y = Gdx.graphics.getHeight() - 30;
         for (int cont = 0; cont < filas; cont++) {
             y -= blockHeight + 10;
             for (int x = 5; x < Gdx.graphics.getWidth(); x += blockWidth + 10) {
@@ -107,7 +107,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
             if (b.isDestroyed()) {
                 puntaje++;
                 blocks.remove(b);
-                i--; //para no saltarse 1 tras eliminar del arraylist
+                i--;
             }
         }
 

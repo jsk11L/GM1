@@ -10,7 +10,7 @@ public class PingBall extends GameObject implements Drawable {
     private boolean estaQuieto;
 
     public PingBall(int x, int y, int size, int xSpeed, int ySpeed, boolean iniciaQuieto) {
-        super(x, y, size, size, Color.WHITE); // size is used for both width and height as the ball is a circle
+        super(x, y, size, size, Color.WHITE);
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
         this.size = size;
@@ -34,7 +34,7 @@ public class PingBall extends GameObject implements Drawable {
     @Override
     public void draw(ShapeRenderer shape) {
         shape.setColor(this.color);
-        shape.circle(x, y, width / 2); // width / 2 as it's the radius for the circle
+        shape.circle(x, y, width / 2);
     }
 
     @Override
@@ -80,7 +80,6 @@ public class PingBall extends GameObject implements Drawable {
         return intersectaX && intersectaY;
     }
 
-    // Collision methods remain unchanged
 }
 
 
