@@ -1,4 +1,3 @@
-
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
@@ -6,111 +5,82 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class PingBall extends GameObject implements Drawable {
-    private int xSpeed;
-    private int ySpeed;
-    private Color color;
+    private int xSpeed, ySpeed;
+    private int size;
     private boolean estaQuieto;
 
     public PingBall(int x, int y, int size, int xSpeed, int ySpeed, boolean iniciaQuieto) {
-        super(x, y, size, size);  // size is used for both width and height here
+        super(x, y, size, size, Color.WHITE); // size is used for both width and height as the ball is a circle
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
-        this.color = Color.WHITE;
+        this.size = size;
         this.estaQuieto = iniciaQuieto;
     }
 
-    @Override
-    public void draw(ShapeRenderer shape) {
-        shape.setColor(color);
-        shape.circle(getX(), getY(), getWidth() / 2);
-    }
-
-    public void update(Paddle paddle) {
-        // Move the ball by its current speed
-        setX(getX() + xSpeed);
-        setY(getY() + ySpeed);
-
-        // Collision with the left and right walls
-        if (getX() < 0 || getX() + getWidth() > Gdx.graphics.getWidth()) {
-            xSpeed = -xSpeed;
-        }
-
-        // Collision with the top wall
-        if (getY() + getHeight() > Gdx.graphics.getHeight()) {
-            ySpeed = -ySpeed;
-        }
-
-        // Collision with the paddle
-        // Collision with the paddle
-        if (checkCollision(paddle)) {
-            // Check if the ball's center is above the paddle's center
-            if (getY() + getHeight() / 2 > paddle.getY() + paddle.getHeight() / 2) {
-                // The ball's center is above the paddle's center, make sure it bounces upwards
-                ySpeed = Math.abs(ySpeed);
-            } else {
-                // Otherwise, make sure it bounces downwards
-                ySpeed = -Math.abs(ySpeed);
-            }
-        }
-
-
-        // ... Add logic for the bottom of the screen if needed
-    }
-
-
-    public void reset(int newX, int newY) {
-        setX(newX);
-        setY(newY);
-        estaQuieto = true;
-    }
-
-    public boolean checkCollision(GameObject other) {
-        // Get the ball's bounding box
-        int ballLeft = getX();
-        int ballRight = getX() + getWidth();
-        int ballTop = getY() + getHeight();
-        int ballBottom = getY();
-
-        // Get the other object's bounding box
-        int otherLeft = other.getX();
-        int otherRight = other.getX() + other.getWidth();
-        int otherTop = other.getY() + other.getHeight();
-        int otherBottom = other.getY();
-
-        // Check if the bounding boxes overlap
-        if (ballRight < otherLeft || ballLeft > otherRight) return false; // No overlap on the x-axis
-        if (ballTop < otherBottom || ballBottom > otherTop) return false; // No overlap on the y-axis
-
-        // If we get here, there is an overlap on both axes, so there is a collision
-        // Determine the side of the collision
-        float ballCenterX = getX() + getWidth() / 2;
-        float ballCenterY = getY() + getHeight() / 2;
-        float otherCenterX = other.getX() + other.getWidth() / 2;
-        float otherCenterY = other.getY() + other.getHeight() / 2;
-
-        float deltaX = ballCenterX - otherCenterX;
-        float deltaY = ballCenterY - otherCenterY;
-
-        if (Math.abs(deltaX) > Math.abs(deltaY)) { // The collision is more horizontal
-            xSpeed = -xSpeed;
-        } else { // The collision is more vertical
-            ySpeed = -ySpeed;
-        }
-
-        return true;
-    }
-
-
-    public boolean isStationary() {
+    public boolean isEstaQuieto() {
         return estaQuieto;
     }
 
-    public void setPosition(int newX, int newY) {
-        setX(newX);
-        setY(newY);
+    public void setEstaQuieto(boolean estaQuieto) {
+        this.estaQuieto = estaQuieto;
     }
 
-    public void setStationary(boolean stationary) {
-        this.estaQuieto = stationary;
+    public void setXY(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
+    public int getY() {return y;}
+
+    @Override
+    public void draw(ShapeRenderer shape) {
+        shape.setColor(this.color);
+        shape.circle(x, y, width / 2); // width / 2 as it's the radius for the circle
+    }
+
+    @Override
+    public void update() {
+        if (!estaQuieto) {
+            x += xSpeed;
+            y += ySpeed;
+            if (x - width / 2 < 0 || x + width / 2 > Gdx.graphics.getWidth()) {
+                xSpeed = -xSpeed;
+            }
+            if (y + height / 2 > Gdx.graphics.getHeight()) {
+                ySpeed = -ySpeed;
+            }
+        }
+    }
+
+    public void checkCollision(Paddle paddle) {
+        if(collidesWith(paddle)){
+            color = Color.GREEN;
+            ySpeed = -ySpeed;
+        }
+        else{
+            color = Color.WHITE;
+        }
+    }
+    private boolean collidesWith(Paddle pp) {
+
+        boolean intersectaX = (pp.getX() + pp.getWidth() >= x-size) && (pp.getX() <= x+size);
+        boolean intersectaY = (pp.getY() + pp.getHeight() >= y-size) && (pp.getY() <= y+size);
+        return intersectaX && intersectaY;
+    }
+
+    public void checkCollision(Block block) {
+        if(collidesWith(block)){
+            ySpeed = - ySpeed;
+            block.setDestroyed(true);
+        }
+    }
+    private boolean collidesWith(Block bb) {
+
+        boolean intersectaX = (bb.x + bb.width >= x-size) && (bb.x <= x+size);
+        boolean intersectaY = (bb.y + bb.height >= y-size) && (bb.y <= y+size);
+        return intersectaX && intersectaY;
+    }
+
+    // Collision methods remain unchanged
 }
+
+

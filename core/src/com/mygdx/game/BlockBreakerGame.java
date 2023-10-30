@@ -1,4 +1,3 @@
-
 package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -9,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
 import java.util.ArrayList;
 
 public class BlockBreakerGame extends ApplicationAdapter {
@@ -17,11 +17,11 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private BitmapFont font;
     private ShapeRenderer shape;
     private PingBall ball;
-    private Paddle paddle;
+    private Paddle pad;
     private ArrayList<Block> blocks;
-    private int lives;
-    private int score;
-    private int level;
+    private int vidas;
+    private int puntaje;
+    private int nivel;
 
     @Override
     public void create() {
@@ -30,99 +30,102 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch = new SpriteBatch();
         font = new BitmapFont();
         font.getData().setScale(3, 2);
-        level = 1;
+        nivel = 1;
+        vidas = 3;
+        puntaje = 0;
         blocks = new ArrayList<>();
-        createBlocks(2 + level);
 
         shape = new ShapeRenderer();
-        ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 10, 5, 7, true);
-        paddle = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10, 10);
-        lives = 3;
-        score = 0;
+        ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 20, 5, 7, true);
+        pad = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
+        crearBloques(2 + nivel);
     }
 
-    private void createBlocks(int rows) {
+    private void crearBloques(int filas) {
         blocks.clear();
         int blockWidth = 70;
         int blockHeight = 26;
-        int yPos = Gdx.graphics.getHeight() - blockHeight - 10;
-        for (int row = 0; row < rows; row++) {
+        int y = Gdx.graphics.getHeight() - 30; // Start a bit below the top of the screen
+        for (int cont = 0; cont < filas; cont++) {
+            y -= blockHeight + 10;
             for (int x = 5; x < Gdx.graphics.getWidth(); x += blockWidth + 10) {
-                blocks.add(new Block(x, yPos, blockWidth, blockHeight));
+                blocks.add(new Block(x, y, blockWidth, blockHeight));
             }
-            yPos -= blockHeight + 10;
         }
     }
 
-    private void drawTexts() {
+    private void dibujaTextos() {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        font.draw(batch, "Score: " + score, 10, 25);
-        font.draw(batch, "Lives: " + lives, Gdx.graphics.getWidth() - 100, 25);
+        font.draw(batch, "Puntos: " + puntaje, 10, Gdx.graphics.getHeight() - 10);
+        font.draw(batch, "Vidas : " + vidas, Gdx.graphics.getWidth() - 150, Gdx.graphics.getHeight() - 10);
         batch.end();
     }
 
     @Override
     public void render() {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        handleInput();
+
         shape.begin(ShapeRenderer.ShapeType.Filled);
-
-        // Check game start
-        if (ball.isStationary()) {
-            ball.setPosition(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11);
-            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) ball.setStationary(false);
+        pad.draw(shape);
+        if (ball.isEstaQuieto()) {
+            ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + 1);
+            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) ball.setEstaQuieto(false);
         } else {
-            ball.update(paddle);
+            ball.update();
         }
 
-        // Check if the ball went below the bottom edge
         if (ball.getY() < 0) {
-            lives--;
-            if (lives <= 0) {
-                gameOver();
-            } else {
-                ball.reset(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11);
+            vidas--;
+            ball.setEstaQuieto(true);
+            if (vidas <= 0) {
+                // Reset game
+                vidas = 3;
+                nivel = 1;
+                puntaje = 0;
+                crearBloques(2 + nivel);
             }
         }
 
-        // Draw and update blocks
-        for (Block block : new ArrayList<>(blocks)) {
-            block.draw(shape);
-            if (ball.checkCollision(block)) {
-                score++;
-                blocks.remove(block);
+        if (blocks.size() == 0) {
+            nivel++;
+            crearBloques(2 + nivel);
+            ball.setEstaQuieto(true);
+        }
+
+        for (Block b : blocks) {
+            b.draw(shape);
+            ball.checkCollision(b);
+        }
+
+        for (int i = 0; i < blocks.size(); i++) {
+            Block b = blocks.get(i);
+            if (b.isDestroyed()) {
+                puntaje++;
+                blocks.remove(b);
+                i--; //para no saltarse 1 tras eliminar del arraylist
             }
         }
 
-        // Check level completion
-        if (blocks.isEmpty()) {
-            level++;
-            createBlocks(2 + level);
-            ball.reset(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11);
-        }
-
-        // En el método render de BlockBreakerGame, debes manejar la entrada del usuario:
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            paddle.moveLeft();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            paddle.moveRight();
-        }
-
-        paddle.draw(shape);
+        ball.checkCollision(pad);
         ball.draw(shape);
-        ball.checkCollision(paddle);
 
         shape.end();
-        drawTexts();
+
+        dibujaTextos();
     }
 
-    private void gameOver() {
-        lives = 3;
-        level = 1;
-        createBlocks(2 + level);
-        ball.reset(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11);
+    private void handleInput() {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            pad.moveLeft();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            pad.moveRight();
+        }
     }
 
     @Override
@@ -131,5 +134,4 @@ public class BlockBreakerGame extends ApplicationAdapter {
         font.dispose();
         shape.dispose();
     }
-    //a
 }
