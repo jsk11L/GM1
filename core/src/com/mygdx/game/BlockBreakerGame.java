@@ -62,12 +62,14 @@ public class BlockBreakerGame extends ApplicationAdapter {
     }
 
     private void dibujaTextos() {
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-        font.draw(batch, "Puntos: " + puntaje, 10, Gdx.graphics.getHeight() - 10);
-        font.draw(batch, "Vidas : " + vidas, Gdx.graphics.getWidth() - 150, Gdx.graphics.getHeight() - 10);
-        batch.end();
+        if (!gameOver) { // Solo dibuja los textos si no es Game Over
+            camera.update();
+            batch.setProjectionMatrix(camera.combined);
+            batch.begin();
+            font.draw(batch, "Puntos: " + puntaje, 10, Gdx.graphics.getHeight() - 10);
+            font.draw(batch, "Vidas : " + vidas, Gdx.graphics.getWidth() - 150, Gdx.graphics.getHeight() - 10);
+            batch.end();
+        }
     }
 
     @Override
@@ -80,18 +82,22 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
             shape.begin(ShapeRenderer.ShapeType.Filled);
             pad.draw(shape);
+
             if (ball.isEstaQuieto()) {
-                ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + 1);
-                if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) ball.setEstaQuieto(false);
+                ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + 16);
+                if (Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+                    ball.setEstaQuieto(false);
+                }
             } else {
                 ball.update();
             }
 
             if (ball.getY() < 0) {
                 vidas--;
-                ball.setEstaQuieto(true);
                 if (vidas <= 0) {
                     gameOver = true;
+                } else {
+                    resetBall();
                 }
             }
 
@@ -180,6 +186,15 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch.end();
     }
 
+    private void resetBall() {
+        // Coloca la pelota justo arriba del paddle y la centra horizontalmente
+        ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + ball.getHeight() + 10);
+        // Restablece la velocidad de la pelota a los valores iniciales
+        ball.setXSpeed(5); // Asumiendo que 5 es la velocidad x inicial
+        ball.setYSpeed(7); // Asumiendo que 7 es la velocidad y inicial
+        ball.setEstaQuieto(true); // La pelota comienza en estado quieto
+        ball.update();
+    }
 
     private void resetGame() {
         // Reset all game variables and states
@@ -190,6 +205,6 @@ public class BlockBreakerGame extends ApplicationAdapter {
         fadeValue = 0;
         gameOverTimer = 0;
         crearBloques(2 + nivel);
-        ball.setEstaQuieto(true);
+        resetBall();
     }
 }

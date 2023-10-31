@@ -25,6 +25,14 @@ public class PingBall extends GameObject implements Drawable {
         this.estaQuieto = estaQuieto;
     }
 
+    public void setXSpeed(int xSpeed){
+        this.xSpeed = xSpeed;
+    }
+
+    public void setYSpeed(int ySpeed){
+        this.ySpeed = ySpeed;
+    }
+
     public void setXY(int x, int y) {
         this.x = x;
         this.y = y;
