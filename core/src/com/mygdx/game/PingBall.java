@@ -17,32 +17,12 @@ public class PingBall extends GameObject implements Drawable {
         this.estaQuieto = iniciaQuieto;
     }
 
-    public boolean isEstaQuieto() {
-        return estaQuieto;
-    }
-
-    public void setEstaQuieto(boolean estaQuieto) {
-        this.estaQuieto = estaQuieto;
-    }
-
-    public void setXSpeed(int xSpeed){
-        this.xSpeed = xSpeed;
-    }
-
-    public void setYSpeed(int ySpeed){
-        this.ySpeed = ySpeed;
-    }
-
-    public void setXY(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-    public int getY() {return y;}
+    // Getters, setters y otros métodos...
 
     @Override
     public void draw(ShapeRenderer shape) {
         shape.setColor(this.color);
-        shape.circle(x, y, width / 2);
+        shape.circle(x, y, size / 2);
     }
 
     @Override
@@ -50,10 +30,12 @@ public class PingBall extends GameObject implements Drawable {
         if (!estaQuieto) {
             x += xSpeed;
             y += ySpeed;
-            if (x - width / 2 < 0 || x + width / 2 > Gdx.graphics.getWidth()) {
+
+            // Rebotar en los bordes de la pantalla
+            if (x - size / 2 < 0 || x + size / 2 > Gdx.graphics.getWidth()) {
                 xSpeed = -xSpeed;
             }
-            if (y + height / 2 > Gdx.graphics.getHeight()) {
+            if (y + size / 2 > Gdx.graphics.getHeight()) {
                 ySpeed = -ySpeed;
             }
         }
@@ -61,33 +43,31 @@ public class PingBall extends GameObject implements Drawable {
 
     public void checkCollision(Paddle paddle) {
         if(collidesWith(paddle)){
-            color = Color.GREEN;
             ySpeed = -ySpeed;
+            // Ajusta la posición Y para evitar que la pelota se "pegue" al paddle
+            y = paddle.getY() + paddle.getHeight() + size / 2;
         }
-        else{
-            color = Color.WHITE;
-        }
-    }
-    private boolean collidesWith(Paddle pp) {
-
-        boolean intersectaX = (pp.getX() + pp.getWidth() >= x-size) && (pp.getX() <= x+size);
-        boolean intersectaY = (pp.getY() + pp.getHeight() >= y-size) && (pp.getY() <= y+size);
-        return intersectaX && intersectaY;
     }
 
     public void checkCollision(Block block) {
         if(collidesWith(block)){
-            ySpeed = - ySpeed;
+            ySpeed = -ySpeed;
             block.setDestroyed(true);
         }
     }
-    private boolean collidesWith(Block bb) {
 
-        boolean intersectaX = (bb.x + bb.width >= x-size) && (bb.x <= x+size);
-        boolean intersectaY = (bb.y + bb.height >= y-size) && (bb.y <= y+size);
+    private boolean collidesWith(Paddle paddle) {
+        boolean intersectaX = (paddle.getX() + paddle.getWidth() >= x - size / 2) && (paddle.getX() <= x + size / 2);
+        boolean intersectaY = paddle.getY() < y + size / 2 && paddle.getY() + paddle.getHeight() > y - size / 2;
         return intersectaX && intersectaY;
     }
 
+    private boolean collidesWith(Block block) {
+        boolean intersectaX = (block.getX() + block.getWidth() >= x - size / 2) && (block.getX() <= x + size / 2);
+        boolean intersectaY = (block.getY() + block.getHeight() >= y - size / 2) && (block.getY() <= y + size / 2);
+        return intersectaX && intersectaY;
+    }
 }
+
 
 

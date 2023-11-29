@@ -1,13 +1,9 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.mygdx.game.Drawable;
 
-public class Paddle extends GameObject {
+public class Paddle extends GameObject implements Drawable {
 
     public Paddle(int x, int y, int width, int height) {
         super(x, y, width, height, Color.BLUE);
@@ -30,5 +26,8 @@ public class Paddle extends GameObject {
         shape.setColor(this.color);
         shape.rect(x, y, width, height);
     }
+
+    // Setters y Getters adicionales si son necesarios...
 }
+
 

@@ -6,7 +6,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
@@ -18,14 +17,12 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private BitmapFont font;
     private ShapeRenderer shape;
     private PingBall ball;
-    private Paddle pad;
-    private ArrayList<Block> blocks;
+    private Paddle paddle;
+    private BlockManager blockManager;
     private int vidas;
     private int puntaje;
     private int nivel;
     private boolean gameOver;
-    private float gameOverTimer;
-    private float fadeValue;
 
     @Override
     public void create() {
@@ -34,41 +31,32 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch = new SpriteBatch();
         font = new BitmapFont();
         font.getData().setScale(3, 2);
+        shape = new ShapeRenderer();
+
+        ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 20, 5, 7, true);
+        paddle = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
+        blockManager = new BlockManager();
+        initGame();
+    }
+
+    private void initGame() {
         nivel = 1;
         vidas = 3;
         puntaje = 0;
-        blocks = new ArrayList<>();
-
-        shape = new ShapeRenderer();
-        ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 20, 5, 7, true);
-        pad = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
-        crearBloques(2 + nivel);
         gameOver = false;
-        gameOverTimer = 0;
-        fadeValue = 0;
+        crearBloques(2 + nivel);
     }
 
     private void crearBloques(int filas) {
-        blocks.clear();
+        blockManager.clearBlocks();
         int blockWidth = 70;
         int blockHeight = 26;
         int y = Gdx.graphics.getHeight() - 30;
-        for (int cont = 0; cont < filas; cont++) {
+        for (int fila = 0; fila < filas; fila++) {
             y -= blockHeight + 10;
             for (int x = 5; x < Gdx.graphics.getWidth(); x += blockWidth + 10) {
-                blocks.add(new Block(x, y, blockWidth, blockHeight));
+                blockManager.addBlock(new RegularBlock(x, y, blockWidth, blockHeight));
             }
-        }
-    }
-
-    private void dibujaTextos() {
-        if (!gameOver) { // Solo dibuja los textos si no es Game Over
-            camera.update();
-            batch.setProjectionMatrix(camera.combined);
-            batch.begin();
-            font.draw(batch, "Puntos: " + puntaje, 10, Gdx.graphics.getHeight() - 10);
-            font.draw(batch, "Vidas : " + vidas, Gdx.graphics.getWidth() - 150, Gdx.graphics.getHeight() - 10);
-            batch.end();
         }
     }
 
@@ -79,76 +67,78 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
         if (!gameOver) {
             handleInput();
-
-            shape.begin(ShapeRenderer.ShapeType.Filled);
-            pad.draw(shape);
+            ball.update();
+            blockManager.checkCollision(ball);
 
             if (ball.isEstaQuieto()) {
-                ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + 16);
-                if (Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+                ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight() + 16);
+                if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     ball.setEstaQuieto(false);
                 }
-            } else {
-                ball.update();
             }
 
-            if (ball.getY() < 0) {
-                vidas--;
-                if (vidas <= 0) {
-                    gameOver = true;
-                } else {
-                    resetBall();
-                }
-            }
-
-            if (blocks.size() == 0) {
-                nivel++;
-                crearBloques(2 + nivel);
-                ball.setEstaQuieto(true);
-            }
-
-            for (Block b : blocks) {
-                b.draw(shape);
-                ball.checkCollision(b);
-            }
-
-            for (int i = 0; i < blocks.size(); i++) {
-                Block b = blocks.get(i);
-                if (b.isDestroyed()) {
-                    puntaje++;
-                    blocks.remove(b);
-                    i--;
-                }
-            }
-
-            ball.checkCollision(pad);
+            shape.begin(ShapeRenderer.ShapeType.Filled);
+            paddle.draw(shape);
             ball.draw(shape);
-
+            blockManager.drawBlocks(shape);
             shape.end();
 
             dibujaTextos();
-        }
-
-        if (gameOver) {
-            if (fadeValue < 1) {
-                fadeValue += Gdx.graphics.getDeltaTime() / 3; // 3 seconds fade in
-            } else {
-                fadeValue = 1;
-            }
-            drawGameOverScreen();
-            if (fadeValue == 1 && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                resetGame();
-            }
+            checkGameStatus();
+        } else {
+            // Manejar estado de juego terminado...
         }
     }
 
     private void handleInput() {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            pad.moveLeft();
+            paddle.moveLeft();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            pad.moveRight();
+            paddle.moveRight();
         }
+    }
+
+    private void dibujaTextos() {
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        font.draw(batch, "Puntos: " + puntaje, 10, Gdx.graphics.getHeight() - 10);
+        font.draw(batch, "Vidas: " + vidas, Gdx.graphics.getWidth() - 150, Gdx.graphics.getHeight() - 10);
+        batch.end();
+    }
+
+    private void checkGameStatus() {
+        if (ball.getY() < 0) {
+            vidas--;
+            if (vidas <= 0) {
+                gameOver = true;
+            } else {
+                resetBall();
+            }
+        }
+
+        if (blockManager.isEmpty()) {
+            nivel++;
+            crearBloques(2 + nivel);
+            resetBall();
+        }
+    }
+
+    private void resetGame() {
+        vidas = 3;
+        puntaje = 0;
+        nivel = 1;
+        gameOver = false;
+        crearBloques(2 + nivel);
+        resetBall();
+    }
+
+    private void resetBall() {
+        ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight() + 16);
+        ball.setXSpeed(5);
+        ball.setYSpeed(7);
+        ball.setEstaQuieto(true);
     }
 
     @Override
@@ -160,51 +150,26 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
     private void drawGameOverScreen() {
         shape.begin(ShapeRenderer.ShapeType.Filled);
-        shape.setColor(1, 0, 0, fadeValue); // Red with fade
+        shape.setColor(1, 0, 0, 1); // Rojo
         shape.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shape.end();
 
         batch.begin();
-        // Restablece el color a negro para "GAME OVER"
-        font.setColor(0, 0, 0, fadeValue); // Black with fade
-        GlyphLayout gameOverLayout = new GlyphLayout(font, "GAME OVER");
-        float gameOverX = (Gdx.graphics.getWidth() - gameOverLayout.width) / 2;
-        float gameOverY = (Gdx.graphics.getHeight() + gameOverLayout.height) / 2;
-        font.draw(batch, gameOverLayout, gameOverX, gameOverY);
-        if (fadeValue == 1) {
-            gameOverTimer += Gdx.graphics.getDeltaTime();
-            if (gameOverTimer > 2) { // Wait for 2 seconds
-                font.getData().setScale(1.5f); // Smaller font size
-                GlyphLayout continueLayout = new GlyphLayout(font, "PRESS TO CONTINUE");
-                float continueX = (Gdx.graphics.getWidth() - continueLayout.width) / 2;
-                float continueY = Gdx.graphics.getHeight() / 4f + continueLayout.height / 2;
-                font.setColor(1, 1, 1, 1); // White
-                font.draw(batch, continueLayout, continueX, continueY);
-                font.getData().setScale(3, 2); // Reset to original scale
-            }
-        }
+        font.setColor(1, 1, 1, 1); // Blanco
+        font.getData().setScale(2, 2);
+        String gameOverText = "GAME OVER";
+        float textWidth = font.getSpaceWidth() * gameOverText.length();
+        font.draw(batch, gameOverText, (Gdx.graphics.getWidth() - textWidth) / 2, Gdx.graphics.getHeight() / 2);
+        font.getData().setScale(1, 1);
+        String restartText = "Presiona ESPACIO para reiniciar";
+        textWidth = font.getSpaceWidth() * restartText.length();
+        font.draw(batch, restartText, (Gdx.graphics.getWidth() - textWidth) / 2, Gdx.graphics.getHeight() / 4);
         batch.end();
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            resetGame();
+        }
     }
 
-    private void resetBall() {
-        // Coloca la pelota justo arriba del paddle y la centra horizontalmente
-        ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + ball.getHeight() + 10);
-        // Restablece la velocidad de la pelota a los valores iniciales
-        ball.setXSpeed(5); // Asumiendo que 5 es la velocidad x inicial
-        ball.setYSpeed(7); // Asumiendo que 7 es la velocidad y inicial
-        ball.setEstaQuieto(true); // La pelota comienza en estado quieto
-        ball.update();
-    }
-
-    private void resetGame() {
-        // Reset all game variables and states
-        vidas = 3;
-        puntaje = 0;
-        nivel = 1;
-        gameOver = false;
-        fadeValue = 0;
-        gameOverTimer = 0;
-        crearBloques(2 + nivel);
-        resetBall();
-    }
 }
+
