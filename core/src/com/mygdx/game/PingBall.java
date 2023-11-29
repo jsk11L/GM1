@@ -17,12 +17,47 @@ public class PingBall extends GameObject implements Drawable {
         this.estaQuieto = iniciaQuieto;
     }
 
-    // Getters, setters y otros métodos...
+    public void setXY(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setEstaQuieto(boolean estaQuieto){
+        this.estaQuieto = estaQuieto;
+    }
+
+    public boolean getEstaQuieto(){
+        return estaQuieto;
+    }
+
+    public void setXSpeed(int xSpeed){
+        this.xSpeed = xSpeed;
+    }
+
+    public int getXSpeed(){
+        return xSpeed;
+    }
+
+    public void setYSpeed(int ySpeed){
+        this.ySpeed = ySpeed;
+    }
+
+    public int getYSpeed(){
+        return ySpeed;
+    }
+
+    public void setSize(int size){
+        this.size = size;
+    }
+
+    public int getSize(){
+        return size;
+    }
 
     @Override
     public void draw(ShapeRenderer shape) {
         shape.setColor(this.color);
-        shape.circle(x, y, size / 2);
+        shape.circle(x, y, (float) size / 2);
     }
 
     @Override
@@ -56,16 +91,20 @@ public class PingBall extends GameObject implements Drawable {
         }
     }
 
-    private boolean collidesWith(Paddle paddle) {
+    public boolean collidesWith(Paddle paddle) {
         boolean intersectaX = (paddle.getX() + paddle.getWidth() >= x - size / 2) && (paddle.getX() <= x + size / 2);
         boolean intersectaY = paddle.getY() < y + size / 2 && paddle.getY() + paddle.getHeight() > y - size / 2;
         return intersectaX && intersectaY;
     }
 
-    private boolean collidesWith(Block block) {
+    public boolean collidesWith(Block block) {
         boolean intersectaX = (block.getX() + block.getWidth() >= x - size / 2) && (block.getX() <= x + size / 2);
         boolean intersectaY = (block.getY() + block.getHeight() >= y - size / 2) && (block.getY() <= y + size / 2);
         return intersectaX && intersectaY;
+    }
+
+    public void reflect() {
+        ySpeed = -ySpeed;
     }
 }
 

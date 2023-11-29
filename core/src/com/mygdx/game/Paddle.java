@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.Gdx;
 
 public class Paddle extends GameObject implements Drawable {
 
@@ -27,7 +28,7 @@ public class Paddle extends GameObject implements Drawable {
         shape.rect(x, y, width, height);
     }
 
-    // Setters y Getters adicionales si son necesarios...
+    public void update(){}
 }
 
 

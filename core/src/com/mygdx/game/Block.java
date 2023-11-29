@@ -11,7 +11,7 @@ public abstract class Block extends GameObject {
         this.destroyed = false;
     }
 
-    public boolean isDestroyed() {
+    public boolean getDestroyed() {
         return destroyed;
     }
 

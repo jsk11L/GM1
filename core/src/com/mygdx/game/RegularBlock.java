@@ -10,7 +10,7 @@ public class RegularBlock extends Block {
 
     @Override
     public void draw(ShapeRenderer shape) {
-        if (!isDestroyed()) {
+        if (getDestroyed()) {
             shape.setColor(getColor());
             shape.rect(getX(), getY(), getWidth(), getHeight());
         }

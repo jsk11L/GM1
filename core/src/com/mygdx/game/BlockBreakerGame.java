@@ -6,10 +6,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-
-import java.util.ArrayList;
 
 public class BlockBreakerGame extends ApplicationAdapter {
     private OrthographicCamera camera;
@@ -70,12 +69,15 @@ public class BlockBreakerGame extends ApplicationAdapter {
             ball.update();
             blockManager.checkCollision(ball);
 
-            if (ball.isEstaQuieto()) {
-                ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight() + 16);
+            if (ball.getEstaQuieto()) {
+                ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight());
                 if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     ball.setEstaQuieto(false);
                 }
             }
+
+            ball.checkCollision(paddle);
+            blockManager.checkCollision(ball);
 
             shape.begin(ShapeRenderer.ShapeType.Filled);
             paddle.draw(shape);
@@ -86,7 +88,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
             dibujaTextos();
             checkGameStatus();
         } else {
-            // Manejar estado de juego terminado...
+            drawGameOverScreen();
         }
     }
 
@@ -103,8 +105,8 @@ public class BlockBreakerGame extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        font.draw(batch, "Puntos: " + puntaje, 10, Gdx.graphics.getHeight() - 10);
-        font.draw(batch, "Vidas: " + vidas, Gdx.graphics.getWidth() - 150, Gdx.graphics.getHeight() - 10);
+        font.draw(batch, "Puntos: " + puntaje, 10, 30); // Ajusta la posición Y
+        font.draw(batch, "Vidas: " + vidas, Gdx.graphics.getWidth() - 150, 30); // Ajusta la posición Y
         batch.end();
     }
 
@@ -135,7 +137,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
     }
 
     private void resetBall() {
-        ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight() + 16);
+        ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight());
         ball.setXSpeed(5);
         ball.setYSpeed(7);
         ball.setEstaQuieto(true);
@@ -158,15 +160,17 @@ public class BlockBreakerGame extends ApplicationAdapter {
         font.setColor(1, 1, 1, 1); // Blanco
         font.getData().setScale(2, 2);
         String gameOverText = "GAME OVER";
-        float textWidth = font.getSpaceWidth() * gameOverText.length();
-        font.draw(batch, gameOverText, (Gdx.graphics.getWidth() - textWidth) / 2, Gdx.graphics.getHeight() / 2);
+        GlyphLayout layout = new GlyphLayout(font, gameOverText);
+        font.draw(batch, layout, (Gdx.graphics.getWidth() - layout.width) / 2, Gdx.graphics.getHeight() / 2 + layout.height / 2);
+
         font.getData().setScale(1, 1);
         String restartText = "Presiona ESPACIO para reiniciar";
-        textWidth = font.getSpaceWidth() * restartText.length();
-        font.draw(batch, restartText, (Gdx.graphics.getWidth() - textWidth) / 2, Gdx.graphics.getHeight() / 4);
+        layout.setText(font, restartText);
+        font.draw(batch, layout, (Gdx.graphics.getWidth() - layout.width) / 2, (float) Gdx.graphics.getHeight() / 4);
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            font.getData().setScale(1, 1);
             resetGame();
         }
     }
