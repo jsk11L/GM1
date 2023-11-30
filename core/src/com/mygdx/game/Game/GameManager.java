@@ -1,7 +1,8 @@
-package com.mygdx.game;
+package com.mygdx.game.Game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.mygdx.game.Blocks.BlockManager;
 
 public class GameManager {
     private final PingBall ball;

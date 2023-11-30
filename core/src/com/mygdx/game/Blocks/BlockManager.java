@@ -1,13 +1,17 @@
-package com.mygdx.game;
+package com.mygdx.game.Blocks;
 
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mygdx.game.Game.GameManager;
+import com.mygdx.game.Game.PingBall;
+import com.mygdx.game.Singleton.ResourceManager;
 
 @SuppressWarnings("ALL")
 public class BlockManager {
     private ArrayList<Block> blocks;
+    private ResourceManager resourceManager;
 
     public BlockManager() {
         blocks = new ArrayList<>();
@@ -29,6 +33,7 @@ public class BlockManager {
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);
             if (!block.getDestroyed() && ball.collidesWith(block)) {
+                ResourceManager.getInstance().getBlockHitSound().play();
                 ball.reflect();
                 block.setDestroyed(true);
                 game.incrementScore();

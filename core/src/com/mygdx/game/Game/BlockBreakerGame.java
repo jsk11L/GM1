@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package com.mygdx.game.Game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mygdx.game.Blocks.BlockManager;
+import com.mygdx.game.Pantalla;
+import com.mygdx.game.Singleton.ResourceManager;
 
 public class BlockBreakerGame extends ApplicationAdapter {
     private OrthographicCamera camera;
@@ -18,6 +21,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private BlockManager blockManager;
     private GameManager gameManager;
     private Pantalla pantalla;
+    private ResourceManager resourceManager;
 
     @Override
     public void create() {
@@ -27,6 +31,8 @@ public class BlockBreakerGame extends ApplicationAdapter {
         font = new BitmapFont();
         font.getData().setScale(3, 2);
         shape = new ShapeRenderer();
+        resourceManager = ResourceManager.getInstance();
+        resourceManager.loadResources();
 
         ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 20, 5, 7, true);
         paddle = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
@@ -43,6 +49,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         pantalla.render();
+        //esourceManager.getBackgroundMusic().play();
 
         if (Pantalla.EstadoPantalla.JUEGO == pantalla.getEstadoActual()) {
             gameManager.handleInput();

@@ -2,10 +2,13 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mygdx.game.Game.GameManager;
+import com.mygdx.game.Singleton.ResourceManager;
 
 @SuppressWarnings("ALL")
 public class Pantalla {
@@ -15,7 +18,7 @@ public class Pantalla {
     private float gameOverFadeTimer;
     private ShapeRenderer shape;
     private GameManager gameManager;
-
+    private ResourceManager resourceManager;
     public EstadoPantalla getEstadoActual() {
         return estadoActual;
     }
@@ -30,6 +33,8 @@ public class Pantalla {
         estadoActual = EstadoPantalla.MENU_PRINCIPAL;
         this.shape = shape;
         this.gameManager = gameManager;
+        resourceManager = ResourceManager.getInstance();
+        resourceManager.loadResources();
         this.batch = batch;
         this.font = font;
     }
@@ -58,6 +63,12 @@ public class Pantalla {
     private void mostrarMenuPrincipal() {
 
         batch.begin();
+
+        Texture menuBackground = resourceManager.getMenuBackground();
+        float width = menuBackground.getWidth() * 0.45f; // Reducir a la mitad el ancho original
+        float height = menuBackground.getHeight() * 0.45f; // Reducir a la mitad la altura original
+        batch.draw(menuBackground, 670, 10, width, height);
+
         mostrarTexto(75,20,"Presiona 'Enter' para comenzar");
         batch.end();
 
