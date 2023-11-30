@@ -1,12 +1,16 @@
-package com.mygdx.game.Game;
+package com.mygdx.game.Template;
 
 import com.mygdx.game.Blocks.BlockManager;
+import com.mygdx.game.Game.PingBall;
 
 public abstract class LevelTemplate {
     protected BlockManager blockManager;
+    protected PingBall ball;
+    protected String dificultad;
 
-    public LevelTemplate(BlockManager blockManager) {
+    public LevelTemplate(BlockManager blockManager, PingBall ball) {
         this.blockManager = blockManager;
+        this.ball = ball;
     }
 
     // Template method
@@ -15,17 +19,21 @@ public abstract class LevelTemplate {
         setupBlocks();
     }
 
+    public String getDificultad() {
+        return dificultad;
+    }
+
     public boolean isOver(){
         return blockManager.isEmpty();
     }
 
-    protected abstract void initializeLevel();
+    public abstract void initializeLevel();
 
     protected void setupBlocks() {
-        blockManager.crearBloques(getLevelDifficulty());
+        blockManager.crearBloques(getLevelDifficulty(), BlockManager.BlockType.NORMAL); // Asumiendo un tipo por defecto
     }
 
     protected int getLevelDifficulty() {
-        return 2;
+        return 3;
     }
 }

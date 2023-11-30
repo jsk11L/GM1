@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.mygdx.game.Blocks.BlockManager;
 import com.mygdx.game.Template.EasyLevel;
+import com.mygdx.game.Template.MediumLevel;
 import com.mygdx.game.Template.LevelTemplate;
 import com.mygdx.game.Template.HardLevel;
 
@@ -11,20 +12,23 @@ public class GameManager {
     private final PingBall ball;
     private final Paddle paddle;
     private LevelTemplate currentLevel;
-    private int nivel;
+    private int totalNivelesJugados;
+    private int selectorDeNivel;
     private int vidas;
     private int puntaje;
+    private BlockManager blockManager;
     private boolean gameOver;
 
     public GameManager(PingBall ball, Paddle paddle, BlockManager blockManager) {
         this.ball = ball;
         this.paddle = paddle;
-        this.currentLevel = new EasyLevel(blockManager); // Comienza con el nivel fácil
-        initGame();
+        this.blockManager = blockManager;
+        this.currentLevel = new EasyLevel(blockManager, ball);
     }
 
     public void initGame() {
-        nivel = 1;
+        totalNivelesJugados = 1;
+        selectorDeNivel = 0;
         vidas = 3;
         puntaje = 0;
         gameOver = false;
@@ -33,10 +37,21 @@ public class GameManager {
     }
 
     public void resetBall() {
+        if (currentLevel != null) {
+            currentLevel.initializeLevel();
+        }
         ball.setInitPos(paddle);
-        ball.setXSpeed(5);
-        ball.setYSpeed(7);
         ball.setEstaQuieto(true);
+    }
+
+    public void resetGame() {
+        totalNivelesJugados = 1;
+        selectorDeNivel = 0;
+        vidas = 3;
+        puntaje = 0;
+        gameOver = false;
+        resetBall();
+        switchLevel();
     }
 
     public void checkGameStatus() {
@@ -57,7 +72,6 @@ public class GameManager {
         }
 
         if (currentLevel.isOver()) {
-            nivel++;
             switchLevel();
             resetBall();
         }
@@ -72,16 +86,27 @@ public class GameManager {
             paddle.moveRight();
         }
     }
-
     private void switchLevel() {
-        if (nivel % 2 == 0) {
-            currentLevel = new HardLevel(blockManager);
+        totalNivelesJugados++;
+        selectorDeNivel++;
+
+        if (selectorDeNivel == 1) {
+            currentLevel = new EasyLevel(blockManager, ball);
+        } else if (selectorDeNivel == 2) {
+            currentLevel = new MediumLevel(blockManager, ball);
         } else {
-            currentLevel = new EasyLevel(blockManager);
+            currentLevel = new HardLevel(blockManager, ball);
+            if (selectorDeNivel == 2) selectorDeNivel = 0;
         }
+
         currentLevel.playLevel();
     }
-
+    public int getNivel(){
+        return totalNivelesJugados;
+    }
+    public String getDificultad() {
+        return currentLevel != null ? currentLevel.getDificultad() : "Unknown";
+    }
     public boolean getGameOver() {
         return gameOver;
     }

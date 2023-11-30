@@ -233,6 +233,8 @@ public class Pantalla {
 
     public void dibujaTextos() {
         batch.begin();
+        font.draw(batch, "Nivel: " + gameManager.getNivel(), 10, 475); // Ajusta la posición Y
+        font.draw(batch, "Dificultad: " + gameManager.getDificultad(), Gdx.graphics.getWidth() - 150, 475); // Ajusta la posición Y
         font.draw(batch, "Puntos: " + gameManager.getPuntaje(), 10, 30); // Ajusta la posición Y
         font.draw(batch, "Vidas: " + gameManager.getVidas(), Gdx.graphics.getWidth() - 150, 30); // Ajusta la posición Y
         batch.end();

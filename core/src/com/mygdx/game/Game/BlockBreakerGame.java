@@ -75,6 +75,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
             if (gameManager.getGameOver()) {
                 pantalla.setEstado(Pantalla.EstadoPantalla.GAME_OVER);
+                gameManager.resetGame();
             }
         }
     }

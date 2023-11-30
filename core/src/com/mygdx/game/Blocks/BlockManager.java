@@ -17,6 +17,12 @@ public class BlockManager {
         blocks = new ArrayList<>();
     }
 
+    public enum BlockType {
+        NORMAL,
+        HARD,
+        MIXED
+    }
+
     public void addBlock(Block block) {
         blocks.add(block);
     }
@@ -36,22 +42,38 @@ public class BlockManager {
                 ResourceManager.getInstance().playBlockHitSound();
                 ball.reflect();
                 block.setDestroyed(true);
-                game.incrementScore();
-                blocks.remove(i);
-                i--;
+                if (block.getDestroyed()) {
+                    game.incrementScore();
+                    blocks.remove(i);
+                    i--;
+                }
             }
         }
     }
 
-    public void crearBloques(int filas) {
+    public void crearBloques(int filas, BlockType type) {
         clearBlocks();
         int blockWidth = 70;
         int blockHeight = 16;
-        int y = Gdx.graphics.getHeight();
+        int y = Gdx.graphics.getHeight() - 30;
+
         for (int fila = 0; fila < filas; fila++) {
             y -= blockHeight + 10;
             for (int x = 5; x < Gdx.graphics.getWidth(); x += blockWidth + 10) {
-                addBlock(new RegularBlock(x, y, blockWidth, blockHeight));
+                switch (type) {
+                    case NORMAL:
+                        addBlock(new RegularBlock(x, y, blockWidth, blockHeight));
+                        break;
+                    case HARD:
+                        addBlock(new HardBlock(x, y, blockWidth, blockHeight));
+                        break;
+                    case MIXED:
+                        // Para MIXED, alterna entre RegularBlock y HardBlock
+                        Block block = (fila % 2 == 0) ? new RegularBlock(x, y, blockWidth, blockHeight)
+                                : new HardBlock(x, y, blockWidth, blockHeight);
+                        addBlock(block);
+                        break;
+                }
             }
         }
     }
@@ -60,11 +82,7 @@ public class BlockManager {
         blocks.clear();
     }
 
-
-
     public boolean isEmpty() {
         return blocks.isEmpty();
     }
-
-    // Agregar más métodos según sea necesario...
 }
