@@ -3,11 +3,14 @@ package com.mygdx.game.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.mygdx.game.Blocks.BlockManager;
+import com.mygdx.game.Template.EasyLevel;
+import com.mygdx.game.Template.LevelTemplate;
+import com.mygdx.game.Template.HardLevel;
 
 public class GameManager {
     private final PingBall ball;
     private final Paddle paddle;
-    private final BlockManager blockManager;
+    private LevelTemplate currentLevel;
     private int nivel;
     private int vidas;
     private int puntaje;
@@ -16,7 +19,7 @@ public class GameManager {
     public GameManager(PingBall ball, Paddle paddle, BlockManager blockManager) {
         this.ball = ball;
         this.paddle = paddle;
-        this.blockManager = blockManager;
+        this.currentLevel = new EasyLevel(blockManager); // Comienza con el nivel fácil
         initGame();
     }
 
@@ -26,7 +29,7 @@ public class GameManager {
         puntaje = 0;
         gameOver = false;
         resetBall();
-        blockManager.crearBloques(2 + nivel);
+        currentLevel.playLevel();
     }
 
     public void resetBall() {
@@ -53,9 +56,9 @@ public class GameManager {
             }
         }
 
-        if (blockManager.isEmpty()) {
+        if (currentLevel.isOver()) {
             nivel++;
-            blockManager.crearBloques(2 + nivel);
+            switchLevel();
             resetBall();
         }
 
@@ -68,6 +71,15 @@ public class GameManager {
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             paddle.moveRight();
         }
+    }
+
+    private void switchLevel() {
+        if (nivel % 2 == 0) {
+            currentLevel = new HardLevel(blockManager);
+        } else {
+            currentLevel = new EasyLevel(blockManager);
+        }
+        currentLevel.playLevel();
     }
 
     public boolean getGameOver() {
