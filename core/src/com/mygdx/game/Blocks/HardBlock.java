@@ -2,7 +2,6 @@ package com.mygdx.game.Blocks;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.mygdx.game.Blocks.Block;
 
 public class HardBlock extends Block {
     public HardBlock(int x, int y, int width, int height) {

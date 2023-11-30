@@ -21,6 +21,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private BlockManager blockManager;
     private GameManager gameManager;
     private Pantalla pantalla;
+    @SuppressWarnings("FieldCanBeLocal")
     private ResourceManager resourceManager;
 
     @Override

@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.Drawable;
-import com.mygdx.game.Game.GameObject;
-
 public class Paddle extends GameObject implements Drawable {
 
     public Paddle(int x, int y, int width, int height) {

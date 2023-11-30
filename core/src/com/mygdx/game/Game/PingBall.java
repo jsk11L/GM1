@@ -5,15 +5,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.mygdx.game.Blocks.Block;
 import com.mygdx.game.Drawable;
-import com.mygdx.game.Game.GameObject;
-import com.mygdx.game.Game.Paddle;
 import com.mygdx.game.Singleton.ResourceManager;
 
 public class PingBall extends GameObject implements Drawable {
     private int xSpeed, ySpeed;
     private final int size;
     private boolean estaQuieto;
-    private ResourceManager resourceManager;
 
     public PingBall(int x, int y, int size, int xSpeed, int ySpeed, boolean iniciaQuieto) {
         super(x, y, size, size, Color.WHITE);
