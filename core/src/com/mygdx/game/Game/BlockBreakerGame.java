@@ -69,6 +69,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
             if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
                 pantalla.setMenuPausa();
+                //a
             }
 
             pantalla.dibujaTextos();
