@@ -33,7 +33,7 @@ public class BlockManager {
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);
             if (!block.getDestroyed() && ball.collidesWith(block)) {
-                ResourceManager.getInstance().getBlockHitSound().play();
+                ResourceManager.getInstance().playBlockHitSound();
                 ball.reflect();
                 block.setDestroyed(true);
                 game.incrementScore();

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.mygdx.game.SoundManager;
 
 public class ResourceManager {
 
@@ -15,7 +16,9 @@ public class ResourceManager {
     private Sound wallHitSound;
     private Texture menuBackground;
 
-    private ResourceManager() {}
+    private ResourceManager() {
+        // Constructor privado
+    }
 
     public static ResourceManager getInstance() {
         if (instance == null) {
@@ -27,25 +30,25 @@ public class ResourceManager {
     public void loadResources() {
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/nocopy.mp3"));
         paddleHitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/paddle_hit.mp3"));
-        blockHitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/block_hit.mp3"));
         wallHitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/wall_hit.mp3"));
+        blockHitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/block_hit.mp3"));
         menuBackground = new Texture(Gdx.files.internal("images/badlogic.jpg"));
     }
 
-    public Music getBackgroundMusic() {
-        return backgroundMusic;
+    public void playBackgroundMusic() {
+        SoundManager.getInstance().playMusic(backgroundMusic);
     }
 
-    public Sound getPaddleHitSound() {
-        return paddleHitSound;
+    public void playPaddleHitSound() {
+        SoundManager.getInstance().playSound(paddleHitSound);
     }
 
-    public Sound getBlockHitSound() {
-        return blockHitSound;
+    public void playBlockHitSound() {
+        SoundManager.getInstance().playSound(blockHitSound);
     }
 
-    public Sound getWallHitSound() {
-        return blockHitSound;
+    public void playWallHitSound() {
+        SoundManager.getInstance().playSound(wallHitSound);
     }
 
     public Texture getMenuBackground() {
@@ -53,7 +56,6 @@ public class ResourceManager {
     }
 
     public void dispose() {
-        wallHitSound.dispose();
         backgroundMusic.dispose();
         paddleHitSound.dispose();
         blockHitSound.dispose();

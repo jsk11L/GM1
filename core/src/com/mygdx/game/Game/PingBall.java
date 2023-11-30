@@ -60,11 +60,11 @@ public class PingBall extends GameObject implements Drawable {
             y += ySpeed;
 
             if (x - size / 2 < 0 || x + size / 2 > Gdx.graphics.getWidth()) {
-                ResourceManager.getInstance().getWallHitSound().play();
+                ResourceManager.getInstance().playWallHitSound();
                 xSpeed = -xSpeed;
             }
             if (y + size / 2 > Gdx.graphics.getHeight()) {
-                ResourceManager.getInstance().getWallHitSound().play();
+                ResourceManager.getInstance().playWallHitSound();
                 ySpeed = -ySpeed;
             }
         }
@@ -72,7 +72,7 @@ public class PingBall extends GameObject implements Drawable {
 
     public void checkCollision(Paddle paddle) {
         if(collidesWith(paddle)){
-            ResourceManager.getInstance().getPaddleHitSound().play();
+            if(!getEstaQuieto()) ResourceManager.getInstance().playPaddleHitSound();
             ySpeed = -ySpeed;
             y = paddle.getY() + paddle.getHeight() + size / 2;
         }
