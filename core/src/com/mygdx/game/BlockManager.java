@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
 import java.util.ArrayList;
+
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class BlockManager {
@@ -16,15 +18,34 @@ public class BlockManager {
 
     public void drawBlocks(ShapeRenderer shape) {
         for (Block block : blocks) {
-            block.draw(shape);
+            if (!block.getDestroyed()) {
+                block.draw(shape);
+            }
         }
     }
 
-    public void checkCollision(PingBall ball) {
-        for (Block block : blocks) {
-            if (block.getDestroyed() && ball.collidesWith(block)) {
+    public void checkCollision(PingBall ball, GameManager game) {
+        for (int i = 0; i < blocks.size(); i++) {
+            Block block = blocks.get(i);
+            if (!block.getDestroyed() && ball.collidesWith(block)) {
                 ball.reflect();
                 block.setDestroyed(true);
+                game.incrementScore();
+                blocks.remove(i); // Remover el bloque destruido de la lista
+                i--; // Ajustar el índice después de la eliminación
+            }
+        }
+    }
+
+    public void crearBloques(int filas) {
+        clearBlocks();
+        int blockWidth = 70;
+        int blockHeight = 16;
+        int y = Gdx.graphics.getHeight();
+        for (int fila = 0; fila < filas; fila++) {
+            y -= blockHeight + 10;
+            for (int x = 5; x < Gdx.graphics.getWidth(); x += blockWidth + 10) {
+                addBlock(new RegularBlock(x, y, blockWidth, blockHeight));
             }
         }
     }

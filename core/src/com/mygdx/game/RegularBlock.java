@@ -5,12 +5,12 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class RegularBlock extends Block {
     public RegularBlock(int x, int y, int width, int height) {
-        super(x, y, width, height, Color.BLUE);
+        super(x, y, width, height, Color.PINK);
     }
 
     @Override
     public void draw(ShapeRenderer shape) {
-        if (getDestroyed()) {
+        if (!getDestroyed()) {
             shape.setColor(getColor());
             shape.rect(getX(), getY(), getWidth(), getHeight());
         }

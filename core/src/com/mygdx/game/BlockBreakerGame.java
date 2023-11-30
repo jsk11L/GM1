@@ -22,6 +22,9 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private int puntaje;
     private int nivel;
     private boolean gameOver;
+    private GameManager gameManager;
+    private float gameOverFadeTimer = 0;
+    private float gameOverOpacity = 0;
 
     @Override
     public void create() {
@@ -35,28 +38,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 20, 5, 7, true);
         paddle = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
         blockManager = new BlockManager();
-        initGame();
-    }
-
-    private void initGame() {
-        nivel = 1;
-        vidas = 3;
-        puntaje = 0;
-        gameOver = false;
-        crearBloques(2 + nivel);
-    }
-
-    private void crearBloques(int filas) {
-        blockManager.clearBlocks();
-        int blockWidth = 70;
-        int blockHeight = 26;
-        int y = Gdx.graphics.getHeight() - 30;
-        for (int fila = 0; fila < filas; fila++) {
-            y -= blockHeight + 10;
-            for (int x = 5; x < Gdx.graphics.getWidth(); x += blockWidth + 10) {
-                blockManager.addBlock(new RegularBlock(x, y, blockWidth, blockHeight));
-            }
-        }
+        gameManager = new GameManager(this, ball, paddle, blockManager);
     }
 
     @Override
@@ -64,20 +46,13 @@ public class BlockBreakerGame extends ApplicationAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!gameOver) {
-            handleInput();
+        if (!gameManager.getGameOver()) {
+            gameManager.handleInput();
             ball.update();
-            blockManager.checkCollision(ball);
-
-            if (ball.getEstaQuieto()) {
-                ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight());
-                if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                    ball.setEstaQuieto(false);
-                }
-            }
+            gameManager.checkGameStatus();
 
             ball.checkCollision(paddle);
-            blockManager.checkCollision(ball);
+            blockManager.checkCollision(ball, gameManager);
 
             shape.begin(ShapeRenderer.ShapeType.Filled);
             paddle.draw(shape);
@@ -86,18 +61,10 @@ public class BlockBreakerGame extends ApplicationAdapter {
             shape.end();
 
             dibujaTextos();
-            checkGameStatus();
         } else {
+            gameOverFadeTimer += Gdx.graphics.getDeltaTime();
+            gameOverOpacity = Math.min(gameOverFadeTimer / 4f, 1);
             drawGameOverScreen();
-        }
-    }
-
-    private void handleInput() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            paddle.moveLeft();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            paddle.moveRight();
         }
     }
 
@@ -105,42 +72,9 @@ public class BlockBreakerGame extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        font.draw(batch, "Puntos: " + puntaje, 10, 30); // Ajusta la posición Y
-        font.draw(batch, "Vidas: " + vidas, Gdx.graphics.getWidth() - 150, 30); // Ajusta la posición Y
+        font.draw(batch, "Puntos: " + gameManager.getPuntaje(), 10, 30); // Ajusta la posición Y
+        font.draw(batch, "Vidas: " + gameManager.getVidas(), Gdx.graphics.getWidth() - 150, 30); // Ajusta la posición Y
         batch.end();
-    }
-
-    private void checkGameStatus() {
-        if (ball.getY() < 0) {
-            vidas--;
-            if (vidas <= 0) {
-                gameOver = true;
-            } else {
-                resetBall();
-            }
-        }
-
-        if (blockManager.isEmpty()) {
-            nivel++;
-            crearBloques(2 + nivel);
-            resetBall();
-        }
-    }
-
-    private void resetGame() {
-        vidas = 3;
-        puntaje = 0;
-        nivel = 1;
-        gameOver = false;
-        crearBloques(2 + nivel);
-        resetBall();
-    }
-
-    private void resetBall() {
-        ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight());
-        ball.setXSpeed(5);
-        ball.setYSpeed(7);
-        ball.setEstaQuieto(true);
     }
 
     @Override
@@ -157,21 +91,25 @@ public class BlockBreakerGame extends ApplicationAdapter {
         shape.end();
 
         batch.begin();
-        font.setColor(1, 1, 1, 1); // Blanco
-        font.getData().setScale(2, 2);
-        String gameOverText = "GAME OVER";
-        GlyphLayout layout = new GlyphLayout(font, gameOverText);
-        font.draw(batch, layout, (Gdx.graphics.getWidth() - layout.width) / 2, Gdx.graphics.getHeight() / 2 + layout.height / 2);
+        if (gameOverFadeTimer > 4) { // Esperar 4 segundos antes de mostrar el texto
+            font.setColor(1, 1, 1, gameOverOpacity); // Aplicar opacidad
+            font.getData().setScale(2, 2); // Escala para GAME OVER
+            String gameOverText = "GAME OVER";
+            GlyphLayout layout = new GlyphLayout(font, gameOverText);
+            font.draw(batch, layout, (Gdx.graphics.getWidth() - layout.width) / 2, Gdx.graphics.getHeight() / 2 + layout.height / 2);
 
-        font.getData().setScale(1, 1);
-        String restartText = "Presiona ESPACIO para reiniciar";
-        layout.setText(font, restartText);
-        font.draw(batch, layout, (Gdx.graphics.getWidth() - layout.width) / 2, (float) Gdx.graphics.getHeight() / 4);
+            if (gameOverFadeTimer > 8) { // Esperar 8 segundos para mostrar "Presionar una tecla"
+                String continueText = "Presiona ESPACIO para reiniciar";
+                layout.setText(font, continueText);
+                font.getData().setScale(1, 1);
+                font.draw(batch, layout, (Gdx.graphics.getWidth() - layout.width) / 2, Gdx.graphics.getHeight() / 4 + layout.height / 2);
+            }
+        }
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             font.getData().setScale(1, 1);
-            resetGame();
+            gameManager.resetGame();
         }
     }
 
