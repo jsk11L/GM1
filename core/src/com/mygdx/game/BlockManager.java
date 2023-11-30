@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+@SuppressWarnings("ALL")
 public class BlockManager {
     private ArrayList<Block> blocks;
 
@@ -31,8 +32,8 @@ public class BlockManager {
                 ball.reflect();
                 block.setDestroyed(true);
                 game.incrementScore();
-                blocks.remove(i); // Remover el bloque destruido de la lista
-                i--; // Ajustar el índice después de la eliminación
+                blocks.remove(i);
+                i--;
             }
         }
     }

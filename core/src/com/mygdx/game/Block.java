@@ -3,7 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public abstract class Block extends GameObject {
+public abstract class Block extends GameObject implements Drawable{
     private boolean destroyed;
 
     public Block(int x, int y, int width, int height, Color color) {
@@ -19,7 +19,6 @@ public abstract class Block extends GameObject {
         this.destroyed = destroyed;
     }
 
-    @Override
-    public abstract void draw(ShapeRenderer shape);
+    public void draw(ShapeRenderer shape){}
 }
 

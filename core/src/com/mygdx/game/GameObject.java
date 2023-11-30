@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public abstract class GameObject {
     protected int x, y, width, height;
@@ -14,9 +13,6 @@ public abstract class GameObject {
         this.height = height;
         this.color = color;
     }
-
-    public abstract void draw(ShapeRenderer shape);
-
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }

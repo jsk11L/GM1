@@ -27,8 +27,6 @@ public class Paddle extends GameObject implements Drawable {
         shape.setColor(this.color);
         shape.rect(x, y, width, height);
     }
-
-    public void update(){}
 }
 
 

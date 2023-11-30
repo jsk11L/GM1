@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class PingBall extends GameObject implements Drawable {
     private int xSpeed, ySpeed;
-    private int size;
+    private final int size;
     private boolean estaQuieto;
 
     public PingBall(int x, int y, int size, int xSpeed, int ySpeed, boolean iniciaQuieto) {
@@ -22,6 +22,10 @@ public class PingBall extends GameObject implements Drawable {
         this.y = y;
     }
 
+    public void setInitPos(Paddle paddle){
+        setXY(paddle.getX() + paddle.getWidth() / 2 - getWidth() / 2, paddle.getY() + paddle.getHeight());
+    }
+
     public void setEstaQuieto(boolean estaQuieto){
         this.estaQuieto = estaQuieto;
     }
@@ -34,24 +38,8 @@ public class PingBall extends GameObject implements Drawable {
         this.xSpeed = xSpeed;
     }
 
-    public int getXSpeed(){
-        return xSpeed;
-    }
-
     public void setYSpeed(int ySpeed){
         this.ySpeed = ySpeed;
-    }
-
-    public int getYSpeed(){
-        return ySpeed;
-    }
-
-    public void setSize(int size){
-        this.size = size;
-    }
-
-    public int getSize(){
-        return size;
     }
 
     @Override
@@ -60,13 +48,11 @@ public class PingBall extends GameObject implements Drawable {
         shape.circle(x, y, (float) size / 2);
     }
 
-    @Override
     public void update() {
         if (!estaQuieto) {
             x += xSpeed;
             y += ySpeed;
 
-            // Rebotar en los bordes de la pantalla
             if (x - size / 2 < 0 || x + size / 2 > Gdx.graphics.getWidth()) {
                 xSpeed = -xSpeed;
             }
@@ -79,15 +65,7 @@ public class PingBall extends GameObject implements Drawable {
     public void checkCollision(Paddle paddle) {
         if(collidesWith(paddle)){
             ySpeed = -ySpeed;
-            // Ajusta la posición Y para evitar que la pelota se "pegue" al paddle
             y = paddle.getY() + paddle.getHeight() + size / 2;
-        }
-    }
-
-    public void checkCollision(Block block) {
-        if(collidesWith(block)){
-            ySpeed = -ySpeed;
-            block.setDestroyed(true);
         }
     }
 

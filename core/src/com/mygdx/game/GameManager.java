@@ -4,17 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 public class GameManager {
-    private BlockBreakerGame game;
-    private PingBall ball;
-    private Paddle paddle;
-    private BlockManager blockManager;
+    private final PingBall ball;
+    private final Paddle paddle;
+    private final BlockManager blockManager;
     private int nivel;
     private int vidas;
     private int puntaje;
     private boolean gameOver;
 
-    public GameManager(BlockBreakerGame game, PingBall ball, Paddle paddle, BlockManager blockManager) {
-        this.game = game;
+    public GameManager(PingBall ball, Paddle paddle, BlockManager blockManager) {
         this.ball = ball;
         this.paddle = paddle;
         this.blockManager = blockManager;
@@ -30,17 +28,8 @@ public class GameManager {
         blockManager.crearBloques(2 + nivel);
     }
 
-    public void resetGame() {
-        vidas = 3;
-        puntaje = 0;
-        nivel = 1;
-        gameOver = false;
-        blockManager.crearBloques(2 + nivel);
-        resetBall();
-    }
-
     public void resetBall() {
-        ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight());
+        ball.setInitPos(paddle);
         ball.setXSpeed(5);
         ball.setYSpeed(7);
         ball.setEstaQuieto(true);
@@ -57,7 +46,7 @@ public class GameManager {
         }
 
         if (ball.getEstaQuieto()) {
-            ball.setXY(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2, paddle.getY() + paddle.getHeight());
+            ball.setInitPos(paddle);
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                 ball.setEstaQuieto(false);
             }
@@ -83,11 +72,9 @@ public class GameManager {
     public boolean getGameOver() {
         return gameOver;
     }
-
     public int getPuntaje() {
         return puntaje;
     }
-
     public int getVidas(){
         return vidas;
     }

@@ -3,7 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class RegularBlock extends Block {
+public class RegularBlock extends Block{
     public RegularBlock(int x, int y, int width, int height) {
         super(x, y, width, height, Color.PINK);
     }
