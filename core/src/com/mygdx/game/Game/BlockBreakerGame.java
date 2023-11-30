@@ -2,6 +2,7 @@ package com.mygdx.game.Game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -50,7 +51,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         pantalla.render();
-        //esourceManager.getBackgroundMusic().play();
+        resourceManager.playBackgroundMusic();
 
         if (Pantalla.EstadoPantalla.JUEGO == pantalla.getEstadoActual()) {
             gameManager.handleInput();
@@ -66,6 +67,10 @@ public class BlockBreakerGame extends ApplicationAdapter {
             blockManager.drawBlocks(shape);
             shape.end();
 
+            if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+                pantalla.setMenuPausa();
+            }
+
             pantalla.dibujaTextos();
 
             if (gameManager.getGameOver()) {
@@ -73,6 +78,17 @@ public class BlockBreakerGame extends ApplicationAdapter {
             }
         }
     }
+
+    @Override
+    public void pause() {
+        pantalla.setEstado(Pantalla.EstadoPantalla.PAUSA);
+    }
+
+    @Override
+    public void resume() {
+        pantalla.setEstado(Pantalla.EstadoPantalla.JUEGO);
+    }
+
     @Override
     public void dispose() {
         pantalla.dispose();

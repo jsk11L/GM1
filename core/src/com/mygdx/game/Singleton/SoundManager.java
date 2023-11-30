@@ -8,11 +8,13 @@ public class SoundManager {
     private static SoundManager instance;
 
     private boolean isSoundEnabled;
+    private boolean isMusicEnabled;
 
     private SoundManager() {
         // Constructor privado
         // Por defecto, el sonido está habilitado
         isSoundEnabled = true;
+        isMusicEnabled = true;
     }
 
     public static SoundManager getInstance() {
@@ -26,8 +28,16 @@ public class SoundManager {
         isSoundEnabled = !isSoundEnabled;
     }
 
+    public void toggleMusic() {
+        isMusicEnabled = !isMusicEnabled;
+    }
+
     public boolean isSoundEnabled() {
         return isSoundEnabled;
+    }
+
+    public boolean isMusicEnabled() {
+        return isMusicEnabled;
     }
 
     public void playSound(Sound sound) {
@@ -37,7 +47,7 @@ public class SoundManager {
     }
 
     public void playMusic(Music music) {
-        if (isSoundEnabled) {
+        if (isMusicEnabled) {
             if (!music.isPlaying()) {
                 music.play();
             }

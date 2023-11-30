@@ -7,8 +7,15 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mygdx.game.Game.GameManager;
 import com.mygdx.game.Singleton.ResourceManager;
+import com.mygdx.game.Singleton.SoundManager;
 
 @SuppressWarnings("ALL")
 public class Pantalla {
@@ -19,6 +26,15 @@ public class Pantalla {
     private ShapeRenderer shape;
     private GameManager gameManager;
     private ResourceManager resourceManager;
+    private Stage stage;
+    private Skin skin;
+    private Stage pauseStage;
+    private TextButton resumeButton;
+    private TextButton mainMenuButton;
+    private TextButton musicToggleButton;
+    private TextButton soundToggleButton;
+    private TextButton pauseMusicToggleButton;
+    private TextButton pauseSoundToggleButton;
     public EstadoPantalla getEstadoActual() {
         return estadoActual;
     }
@@ -26,7 +42,8 @@ public class Pantalla {
     public enum EstadoPantalla {
         MENU_PRINCIPAL,
         JUEGO,
-        GAME_OVER
+        GAME_OVER,
+        PAUSA
     }
 
     public Pantalla(ShapeRenderer shape, GameManager gameManager, SpriteBatch batch, BitmapFont font) {
@@ -37,19 +54,54 @@ public class Pantalla {
         resourceManager.loadResources();
         this.batch = batch;
         this.font = font;
+
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+
+        pauseStage = new Stage(new ScreenViewport());
+
+        // Asume que tienes un Skin cargado aquí
+        skin = new Skin(Gdx.files.internal("data/uiskin.json"));
+
+        createButtons();
     }
 
     public void render() {
         switch (estadoActual) {
             case MENU_PRINCIPAL:
                 mostrarMenuPrincipal();
+                stage.act(Gdx.graphics.getDeltaTime());
+                stage.draw();
                 break;
             case GAME_OVER:
                 mostrarGameOver();
                 break;
+            case PAUSA:
+                mostrarMenuPausa();
+                break;
             case JUEGO:
                 break;
         }
+    }
+
+    private void mostrarMenuPausa() {
+        pauseStage.act(Gdx.graphics.getDeltaTime());
+        pauseStage.draw();
+    }
+
+    public void setMenuPausa() {
+        estadoActual = EstadoPantalla.PAUSA;
+        Gdx.input.setInputProcessor(pauseStage); // Establecer el procesador de entrada para el pauseStage
+    }
+
+    private void setMenuPrincipal(){
+        estadoActual = EstadoPantalla.MENU_PRINCIPAL;
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    private void reanudarJuego() {
+        estadoActual = EstadoPantalla.JUEGO;
+        Gdx.input.setInputProcessor(stage);
     }
 
     private void mostrarTexto(int addX, int addY, String text){
@@ -73,6 +125,7 @@ public class Pantalla {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            gameManager.initGame();
             estadoActual = EstadoPantalla.JUEGO;
         }
     }
@@ -102,6 +155,78 @@ public class Pantalla {
         }
     }
 
+    private void createButtons() {
+        soundToggleButton = new TextButton("S", skin);
+        musicToggleButton = new TextButton("M", skin);
+        pauseSoundToggleButton = new TextButton("S", skin);
+        pauseMusicToggleButton = new TextButton("M", skin);
+        resumeButton = new TextButton("CONTINUAR", skin);
+        mainMenuButton = new TextButton("VOLVER AL MENU", skin);
+
+        soundToggleButton.setPosition(10, 10);
+        musicToggleButton.setPosition(60, 10);
+        pauseSoundToggleButton.setPosition(10, 10);
+        pauseMusicToggleButton.setPosition(60, 10);
+        resumeButton.setPosition(220, 275);
+        mainMenuButton.setPosition(220, 215);
+
+        soundToggleButton.setSize(40, 40);
+        musicToggleButton.setSize(40, 40);
+        pauseSoundToggleButton.setSize(40, 40);
+        pauseMusicToggleButton.setSize(40, 40);
+        resumeButton.setSize(200, 50);
+        mainMenuButton.setSize(200, 50);
+
+        soundToggleButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+               SoundManager.getInstance().toggleSound();
+            }
+        });
+
+        musicToggleButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().toggleMusic();
+            }
+        });
+
+        pauseSoundToggleButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().toggleSound();
+            }
+        });
+
+        pauseMusicToggleButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().toggleMusic();
+            }
+        });
+
+        resumeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                reanudarJuego();
+            }
+        });
+
+        mainMenuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                setMenuPrincipal();
+            }
+        });
+
+        stage.addActor(soundToggleButton);
+        stage.addActor(musicToggleButton);
+        pauseStage.addActor(pauseSoundToggleButton);
+        pauseStage.addActor(pauseMusicToggleButton);
+        pauseStage.addActor(resumeButton);
+        pauseStage.addActor(mainMenuButton);
+    }
+
     public void setEstado(EstadoPantalla nuevoEstado) {
         this.estadoActual = nuevoEstado;
     }
@@ -116,5 +241,7 @@ public class Pantalla {
     public void dispose() {
         batch.dispose();
         font.dispose();
+        stage.dispose();
+        skin.dispose();
     }
 }
