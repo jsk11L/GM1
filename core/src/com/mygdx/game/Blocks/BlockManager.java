@@ -1,17 +1,20 @@
 package com.mygdx.game.Blocks;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.mygdx.game.Game.GameManager;
 import com.mygdx.game.Game.PingBall;
 import com.mygdx.game.Singleton.ResourceManager;
+import com.mygdx.game.Strategy.PowerUp;
 
 @SuppressWarnings("ALL")
 public class BlockManager {
     private ArrayList<Block> blocks;
     private ResourceManager resourceManager;
+    private ArrayList<PowerUp> powerUps = new ArrayList<>();
 
     public BlockManager() {
         blocks = new ArrayList<>();
@@ -39,16 +42,39 @@ public class BlockManager {
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);
             if (!block.getDestroyed() && ball.collidesWith(block)) {
-                ResourceManager.getInstance().playBlockHitSound();
-                ball.reflect();
-                block.setDestroyed(true);
-                if (block.getDestroyed()) {
-                    game.incrementScore();
-                    blocks.remove(i);
-                    i--;
+                resourceManager.getInstance().playBlockHitSound();
+                ball.reflect();  // Asumiendo que hay una lógica para cambiar la dirección de la pelota
+
+                block.setDestroyed(true); // Marcar el bloque como destruido
+                game.incrementScore(); // Incrementar puntaje, si corresponde
+                blocks.remove(i);
+                i--;
+
+                // Generar PowerUp con cierta probabilidad
+                if (Math.random() < 0.1) { // Probabilidad de 10% de soltar un PowerUp
+                    PowerUp.PowerUpType type = Math.random() < 0.5 ? PowerUp.PowerUpType.FAST : PowerUp.PowerUpType.SLOW;
+                    powerUps.add(new PowerUp(type, block.getX(), block.getY()));
                 }
             }
         }
+    }
+
+    public void drawPowerUps(ShapeRenderer shape) {
+        for (PowerUp powerUp : powerUps) {
+            powerUp.draw(shape);
+        }
+    }
+
+    public void addPowerUp(PowerUp powerUp) {
+        powerUps.add(powerUp);
+    }
+
+    public List<PowerUp> getPowerUps() {
+        return new ArrayList<>(powerUps);
+    }
+
+    private double getPowerUpProbability(int levelDifficulty) {
+        return 0.1; // Ejemplo de probabilidad base
     }
 
     public void crearBloques(int filas, BlockType type) {

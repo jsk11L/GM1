@@ -2,6 +2,7 @@ package com.mygdx.game.Template;
 
 import com.mygdx.game.Blocks.BlockManager;
 import com.mygdx.game.Game.PingBall;
+import com.mygdx.game.Strategy.BallBehavior;
 
 public abstract class LevelTemplate {
     protected BlockManager blockManager;
@@ -29,11 +30,13 @@ public abstract class LevelTemplate {
 
     public abstract void initializeLevel();
 
+    public abstract BallBehavior getNormalBallBehavior();
+
     protected void setupBlocks() {
         blockManager.crearBloques(getLevelDifficulty(), BlockManager.BlockType.NORMAL); // Asumiendo un tipo por defecto
     }
 
-    protected int getLevelDifficulty() {
+    public int getLevelDifficulty() {
         return 3;
     }
 }

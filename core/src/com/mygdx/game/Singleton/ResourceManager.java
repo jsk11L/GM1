@@ -27,7 +27,7 @@ public class ResourceManager {
     }
 
     public void loadResources() {
-        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/nocopy.mp3"));
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/copy.mp3"));
         paddleHitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/paddle_hit.mp3"));
         wallHitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/wall_hit.mp3"));
         blockHitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/block_hit.mp3"));

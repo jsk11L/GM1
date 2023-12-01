@@ -40,6 +40,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         paddle = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
         blockManager = new BlockManager();
         gameManager = new GameManager(ball, paddle, blockManager);
+        gameManager.resetBall();
         pantalla = new Pantalla(shape, gameManager, batch, font);
     }
 
@@ -63,9 +64,12 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
             shape.begin(ShapeRenderer.ShapeType.Filled);
             paddle.draw(shape);
+            blockManager.drawPowerUps(shape);
             ball.draw(shape);
             blockManager.drawBlocks(shape);
             shape.end();
+
+            gameManager.actualizarPowerUps(Gdx.graphics.getDeltaTime());
 
             if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
                 pantalla.setMenuPausa();

@@ -2,6 +2,8 @@ package com.mygdx.game.Template;
 
 import com.mygdx.game.Blocks.BlockManager;
 import com.mygdx.game.Game.PingBall;
+import com.mygdx.game.Strategy.BallBehavior;
+import com.mygdx.game.Strategy.NormalBehavior;
 
 public class EasyLevel extends LevelTemplate {
     public EasyLevel(BlockManager blockManager, PingBall ball) {
@@ -16,7 +18,12 @@ public class EasyLevel extends LevelTemplate {
     }
 
     @Override
-    protected int getLevelDifficulty() {
+    public BallBehavior getNormalBallBehavior() {
+        return new NormalBehavior(4,4);
+    }
+
+    @Override
+    public int getLevelDifficulty() {
         return 3; // Menos bloques para un nivel fácil
     }
 

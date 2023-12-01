@@ -32,14 +32,6 @@ public class SoundManager {
         isMusicEnabled = !isMusicEnabled;
     }
 
-    public boolean isSoundEnabled() {
-        return isSoundEnabled;
-    }
-
-    public boolean isMusicEnabled() {
-        return isMusicEnabled;
-    }
-
     public void playSound(Sound sound) {
         if (isSoundEnabled) {
             sound.play();

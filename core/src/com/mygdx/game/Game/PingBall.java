@@ -6,11 +6,15 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.mygdx.game.Blocks.Block;
 import com.mygdx.game.Drawable;
 import com.mygdx.game.Singleton.ResourceManager;
+import com.mygdx.game.Strategy.BallBehavior;
 
 public class PingBall extends GameObject implements Drawable {
     private int xSpeed, ySpeed;
     private final int size;
     private boolean estaQuieto;
+    private BallBehavior defaultBehavior;
+    private BallBehavior currentBehavior;
+    private float powerUpTimeLeft = 0;
 
     public PingBall(int x, int y, int size, int xSpeed, int ySpeed, boolean iniciaQuieto) {
         super(x, y, size, size, Color.WHITE);
@@ -18,6 +22,21 @@ public class PingBall extends GameObject implements Drawable {
         this.ySpeed = ySpeed;
         this.size = size;
         this.estaQuieto = iniciaQuieto;
+    }
+
+    public void setNormalBehavior(BallBehavior normalBehavior) {
+        this.defaultBehavior = normalBehavior;
+    }
+
+    public void setBehavior(BallBehavior behavior) {
+        this.currentBehavior = behavior;
+        behavior.apply(this);
+    }
+
+    public void setPowerUp(BallBehavior behavior, float duration, Color color) {
+        setBehavior(behavior);
+        setColor(color);
+        powerUpTimeLeft = duration;
     }
 
     public void setXY(int x, int y) {
@@ -65,6 +84,13 @@ public class PingBall extends GameObject implements Drawable {
                 ySpeed = -ySpeed;
             }
         }
+
+        if (powerUpTimeLeft > 0) {
+            powerUpTimeLeft -= Gdx.graphics.getDeltaTime();
+            if (powerUpTimeLeft <= 0) {
+                setBehavior(defaultBehavior);
+            }
+        }
     }
 
     public void checkCollision(Paddle paddle) {
@@ -87,8 +113,21 @@ public class PingBall extends GameObject implements Drawable {
         return intersectaX && intersectaY;
     }
 
+    public int getXSpeed() {
+        return xSpeed;
+    }
+
+    public int getYSpeed(){
+        return ySpeed;
+    }
+
     public void reflect() {
         ySpeed = -ySpeed;
+    }
+
+    public void resetToNormalBehavior() {
+        setBehavior(defaultBehavior);
+        setColor(Color.WHITE);
     }
 }
 

@@ -2,6 +2,8 @@ package com.mygdx.game.Template;
 
 import com.mygdx.game.Blocks.BlockManager;
 import com.mygdx.game.Game.PingBall;
+import com.mygdx.game.Strategy.BallBehavior;
+import com.mygdx.game.Strategy.NormalBehavior;
 
 public class HardLevel extends LevelTemplate {
     public HardLevel(BlockManager blockManager, PingBall ball) {
@@ -16,7 +18,13 @@ public class HardLevel extends LevelTemplate {
     }
 
     @Override
-    protected int getLevelDifficulty() {
+    public BallBehavior getNormalBallBehavior() {
+        return new NormalBehavior(6,8);
+    }
+
+
+    @Override
+    public int getLevelDifficulty() {
         return 5;
     }
 

@@ -3,6 +3,7 @@ package com.mygdx.game.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Drawable;
 public class Paddle extends GameObject implements Drawable {
 
@@ -20,6 +21,10 @@ public class Paddle extends GameObject implements Drawable {
         if (this.x + this.width < Gdx.graphics.getWidth()) {
             this.x += 15;
         }
+    }
+
+    public Rectangle getHitbox() {
+        return new Rectangle(x, y, width, height);
     }
 
     @Override
